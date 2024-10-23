@@ -1,0 +1,17 @@
+{
+    "name": "live-voice-chat-server",
+    "version": "1.0.0",
+    "description": "Signaling server for live voice chat using WebRTC and Socket.io",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "http": "^0.0.1-security",
+        "socket.io": "^4.5.4"
+    },
+    "author": "Shiva",
+    "license": "ISC"
+}
