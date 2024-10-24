@@ -1,43 +1,39 @@
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
-const cors = require('cors'); // Import cors
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
-const io = socketIO(server);
-
-// Enable CORS for all routes
-// Manually set CORS headers
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
+const io = socketIO(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
 });
 
-// Sample GET method
-app.get('/test', (req, res) => {
-  res.send('Server is up and running!');
-});
-
-// WebSocket connection for signaling
 io.on('connection', (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  console.log('Client connected:', socket.id);
 
-  socket.on('signal', (data) => {
-    console.log(`Signal received from ${data.from} to ${data.to}`);
-    console.log(`Signal data: `, data.signal);
-    io.to(data.to).emit('signal', { signal: data.signal, from: data.from });
+  // Listen for Base64-encoded audio data from the client
+  socket.on('audio-data', (base64Data) => {
+    console.log('Received Base64 audio data from:', socket.id);
+
+    // Broadcast the received Base64 audio data to other clients
+    socket.broadcast.emit('audio-data', base64Data);
   });
 
   socket.on('disconnect', () => {
-    console.log(`Client disconnected: ${socket.id}`);
+    console.log('Client disconnected:', socket.id);
   });
 });
 
-// Start the server
-const PORT = 5000;
-server.listen(PORT, () => {
-  console.log(`Signaling server running on port ${PORT}`);
+server.listen(5000, () => {
+  console.log('Server listening on port 5000');
+});
+
+app.get('/test', (req, res) => {
+  res.send('Server is up and running!');
 });
